@@ -13,7 +13,8 @@ spec:
   project: default
   source:
     repoURL: https://github.com/tuo-repo/manifests.git  # ← SOSTITUISCI con il tuo repo
-    path: kustomize/overlays/prod
+    targetRevision: main   # branch dedicato ArgoCD
+    path: apps/flask-hello
     kustomize:
       images:
         - test.local/library/flask-hello:1.1v  # Immagine da aggiornare
