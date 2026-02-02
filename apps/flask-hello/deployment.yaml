@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-hello
+  namespace: flask-hello
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-hello
+  template:
+    metadata:
+      labels:
+        app: flask-hello
+    spec:
+      containers:
+      - name: flask
+        image: flask-hello:latest  # ← Nome GENERICO che verrà sostituito da Kustomize
+        ports:
+        - containerPort: 8081
+        env:
+        - name: FLASK_ENV
+          value: "production"

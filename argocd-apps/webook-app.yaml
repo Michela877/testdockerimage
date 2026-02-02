@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: flask-hello-app
+  namespace: argocd
+  annotations:
+    # Questa annotazione dice ad ArgoCD di reagire ai webhook
+    notifications.argoproj.io/subscribe.on-image-update: slack
+    # Specifica quale immagine monitorare
+    argocd-image-updater.argoproj.io/image-list: flask-hello=test.local/library/flask-hello
+    argocd-image-updater.argoproj.io/flask-hello.update-strategy: latest
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/tuo-repo/manifests.git  # ← SOSTITUISCI con il tuo repo
+    path: kustomize/overlays/prod
+    kustomize:
+      images:
+        - test.local/library/flask-hello:1.1v  # Immagine da aggiornare
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: flask-hello
