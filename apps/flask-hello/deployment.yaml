@@ -12,10 +12,12 @@ spec:
     metadata:
       labels:
         app: flask-hello
-    spec:
+    spec:  # ← QUI!
+      imagePullSecrets:  # ← SPOSTATO QUI!
+      - name: harbor-pull-secret
       containers:
       - name: flask
-        image: test.local:30405/library/flask-hello:latest  # ← Nome GENERICO che verrà sostituito da Kustomize
+        image: test.local:30405/library/flask-hello:latest
         ports:
         - containerPort: 8081
         env:
