@@ -17,7 +17,7 @@ spec:
       - name: harbor-pull-secret
       containers:
       - name: flask
-        image: test.local:30405/library/flask-hello:latest
+        image: test.local:30405/library/flask-hello:1.1v
         ports:
         - containerPort: 8081
         env:

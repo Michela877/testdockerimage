@@ -17,7 +17,7 @@ spec:
     path: apps/flask-hello
     kustomize:
       images:
-        - test.local/library/flask-hello:latest  # Immagine da aggiornare
+        - test.local/library/flask-hello:1.1v  # Immagine da aggiornare
   destination:
     server: https://kubernetes.default.svc
     namespace: flask-hello
