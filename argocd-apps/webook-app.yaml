@@ -12,7 +12,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/tuo-repo/manifests.git  # ← SOSTITUISCI con il tuo repo
+    repoURL: https://github.com/Michela877/testdockerimage.git # ← SOSTITUISCI con il tuo repo
     targetRevision: main   # branch dedicato ArgoCD
     path: apps/flask-hello
     kustomize:
