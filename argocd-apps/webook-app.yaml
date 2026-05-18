@@ -3,26 +3,18 @@ kind: Application
 metadata:
   name: flask-hello-app
   namespace: argocd
-  annotations:
-    argocd-image-updater.argoproj.io/image-list: flask-hello=test.local/michela877/flask-hello
-    argocd-image-updater.argoproj.io/flask-hello.update-strategy: latest
-    argocd-image-updater.argoproj.io/flask-hello.allow-tags: regexp:^.*$
-    argocd-image-updater.argoproj.io/write-back-method: git
-    argocd-image-updater.argoproj.io/write-back-target: kustomization
-    argocd-image-updater.argoproj.io/git-branch: argocd
-    # Credenziali Git (meglio usare secret)
-    argocd-image-updater.argoproj.io/git-user: Michela877
-    argocd-image-updater.argoproj.io/git-email: your-email@example.com
-
 spec:
   project: default
+
   source:
     repoURL: https://github.com/Michela877/testdockerimage.git
-    targetRevision: argocd
+    targetRevision: main
     path: apps/flask-hello
+
   destination:
     server: https://kubernetes.default.svc
     namespace: flask-hello
+
   syncPolicy:
     automated:
       prune: true
