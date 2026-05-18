@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: flask
-        image: test.local/michela877/flask-hello@sha256:68aafa565bbb4488616cc8cefe3e2b3ba21dd469d7d81ad3c0c6ab48a5cccbfe
+        image: test.local/michela877/flask-hello:1.0v
         ports:
         - containerPort: 8081
         env:
