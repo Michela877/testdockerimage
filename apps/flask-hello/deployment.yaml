@@ -1,23 +1,23 @@
-apiVersion:1.0v apps/v1
-kind:1.0v Deployment
-metadata:1.0v
-  name:1.0v flask-hello
-  namespace:1.0v flask-hello
-spec:1.0v
-  replicas:1.0v 1
-  selector:1.0v
-    matchLabels:1.0v
-      app:1.0v flask-hello
-  template:1.0v
-    metadata:1.0v
-      labels:1.0v
-        app:1.0v flask-hello
-    spec:1.0v
-      containers:1.0v
-      - name:1.0v flask
-        image:1.0v test.local/michela877/flask-hello
-        ports:1.0v
-        - containerPort:1.0v 8081
-        env:1.0v
-        - name:1.0v FLASK_ENV
-          value:1.0v "production"
+apiVersion:1.0v1.0v apps/v1
+kind:1.0v1.0v Deployment
+metadata:1.0v1.0v
+  name:1.0v1.0v flask-hello
+  namespace:1.0v1.0v flask-hello
+spec:1.0v1.0v
+  replicas:1.0v1.0v 1
+  selector:1.0v1.0v
+    matchLabels:1.0v1.0v
+      app:1.0v1.0v flask-hello
+  template:1.0v1.0v
+    metadata:1.0v1.0v
+      labels:1.0v1.0v
+        app:1.0v1.0v flask-hello
+    spec:1.0v1.0v
+      containers:1.0v1.0v
+      - name:1.0v1.0v flask
+        image:1.0v1.0v test.local/michela877/flask-hello
+        ports:1.0v1.0v
+        - containerPort:1.0v1.0v 8081
+        env:1.0v1.0v
+        - name:1.0v1.0v FLASK_ENV
+          value:1.0v1.0v "production"
