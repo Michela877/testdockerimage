@@ -5,22 +5,26 @@ metadata:
   namespace: argocd
   annotations:
     argocd-image-updater.argoproj.io/image-list: flask-hello=test.local/library/flask-hello
-    argocd-image-updater.argoproj.io/myapp.update-strategy: semver
+
+    argocd-image-updater.argoproj.io/flask-hello.update-strategy: semver
+
     argocd-image-updater.argoproj.io/write-back-method: git
     argocd-image-updater.argoproj.io/write-back-target: kustomization
+
     argocd-image-updater.argoproj.io/git-branch: argocd
+
 spec:
   project: default
+
   source:
-    repoURL: https://github.com/Michela877/testdockerimage.git # ← SOSTITUISCI con il tuo repo
-    targetRevision: main   # branch dedicato ArgoCD
+    repoURL: https://github.com/Michela877/testdockerimage.git
+    targetRevision: argocd
     path: apps/flask-hello
-    kustomize:
-      images:
-        - test.local/library/flask-hello:1.1v  # Immagine da aggiornare
+
   destination:
     server: https://kubernetes.default.svc
     namespace: flask-hello
+
   syncPolicy:
     automated:
       prune: true
