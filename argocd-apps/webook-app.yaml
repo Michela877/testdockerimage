@@ -4,11 +4,11 @@ metadata:
   name: flask-hello-app
   namespace: argocd
   annotations:
-    # Questa annotazione dice ad ArgoCD di reagire ai webhook
-    notifications.argoproj.io/subscribe.on-image-update: slack
-    # Specifica quale immagine monitorare
     argocd-image-updater.argoproj.io/image-list: flask-hello=test.local/library/flask-hello
-    argocd-image-updater.argoproj.io/flask-hello.update-strategy: latest
+    argocd-image-updater.argoproj.io/myapp.update-strategy: semver
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
+    argocd-image-updater.argoproj.io/git-branch: argocd
 spec:
   project: default
   source:
@@ -21,3 +21,9 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: flask-hello
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
