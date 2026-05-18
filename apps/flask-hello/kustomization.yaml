@@ -6,4 +6,4 @@ resources:
   - service.yaml
 images:
   - name: test.local/michela877/flask-hello
-    newTag: 0.2v
+    newTag: 
