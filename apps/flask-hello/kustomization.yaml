@@ -4,8 +4,3 @@ namespace: flask-hello
 resources:
   - deployment.yaml
   - service.yaml
-
-# Questa è la parte importante per Image Updater
-images:
-  - name: test.local/michela877/flask-hello
-    newTag: @sha256:68aafa565bbb4488616cc8cefe3e2b3ba21dd469d7d81ad3c0c6ab48a5cccbfe
