@@ -8,4 +8,4 @@ resources:
 # Questa è la parte importante per Image Updater
 images:
   - name: test.local/michela877/flask-hello
-    newTag: 0.2v  # verrà aggiornato automaticamente
+    newTag: 
