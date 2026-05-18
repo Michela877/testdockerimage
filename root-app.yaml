@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/Michela877/testdockerimage.git
-    targetRevision: argocd
+    targetRevision: main
     path: argocd-apps          # qui punta alla cartella che contiene tutte le Application figlie
   destination:
     server: https://kubernetes.default.svc
