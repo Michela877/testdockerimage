@@ -1,0 +1,158 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: image-updater-custom
+  namespace: argocd
+  labels:
+    app: image-updater
+spec:
+  restartPolicy: Always
+  containers:
+  - name: updater
+    image: alpine:latest
+    command:
+    - /bin/sh
+    - -c
+    - |
+      apk add --no-cache curl jq git bash
+      
+      git config --global user.email "updater@local.com"
+      git config --global user.name "Image Updater"
+      
+      echo "========================================="
+      echo "🚀 Avvio Image Updater Multi-Applicazione"
+      echo "========================================="
+      
+      HARBOR_HOST="harbor.harbor.svc.cluster.local"
+      HARBOR_URL="http://${HARBOR_HOST}"
+      
+      # Configurazione delle applicazioni
+      # Formato: "cartella:progetto_harbor:repo_harbor:immagine"
+      # Puoi aggiungere quante ne vuoi
+      APPLICATIONS="
+      flask-hello:michela877:flask-hello:test.local/michela877/flask-hello
+      # altra-app:michela877:altra-repo:test.local/michela877/altra-app
+      # terza-app:altro-progetto:altra-repo:harbor.example.com/project/repo
+      "
+      
+      while true; do
+        echo ""
+        echo "========================================="
+        echo "🕐 $(date)"
+        echo "========================================="
+        
+        # Clona/aggiorna repository una volta sola
+        if [ ! -d "/tmp/repo" ]; then
+          echo "📥 Clono repository..."
+          git clone https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/Michela877/testdockerimage.git /tmp/repo
+        else
+          cd /tmp/repo
+          git pull origin main
+        fi
+        
+        # Itera su ogni applicazione
+        echo "$APPLICATIONS" | grep -v "^$" | while IFS=: read -r APP_DIR HARBOR_PROJECT HARBOR_REPO IMAGE_NAME; do
+          APP_DIR=$(echo "$APP_DIR" | xargs)  # Trim whitespace
+          HARBOR_PROJECT=$(echo "$HARBOR_PROJECT" | xargs)
+          HARBOR_REPO=$(echo "$HARBOR_REPO" | xargs)
+          IMAGE_NAME=$(echo "$IMAGE_NAME" | xargs)
+          
+          echo ""
+          echo "-----------------------------------------"
+          echo "📦 Processando: ${APP_DIR}"
+          echo "-----------------------------------------"
+          
+          # Costruisci API URL per Harbor
+          HARBOR_API="${HARBOR_URL}/api/v2.0/projects/${HARBOR_PROJECT}/repositories/${HARBOR_REPO}/artifacts"
+          
+          # Verifica che la directory esista
+          if [ ! -d "/tmp/repo/apps/${APP_DIR}" ]; then
+            echo "⚠️ Directory /apps/${APP_DIR} non trovata, salto..."
+            continue
+          fi
+          
+          cd "/tmp/repo/apps/${APP_DIR}"
+          
+          # Verifica che deployment.yaml esista
+          if [ ! -f "deployment.yaml" ]; then
+            echo "⚠️ deployment.yaml non trovato in ${APP_DIR}, salto..."
+            continue
+          fi
+          
+          # Ottieni ultimo tag da Harbor
+          echo "📡 Controllo Harbor per ${HARBOR_PROJECT}/${HARBOR_REPO}..."
+          HTTP_CODE=$(curl -s -k -L -o /tmp/harbor_response.json -w "%{http_code}" \
+            -u "${HARBOR_USERNAME}:${HARBOR_PASSWORD}" \
+            "${HARBOR_API}")
+          
+          if [ "${HTTP_CODE}" != "200" ]; then
+            echo "❌ Errore HTTP ${HTTP_CODE} per ${APP_DIR}"
+            continue
+          fi
+          
+          LATEST_TAG=$(cat /tmp/harbor_response.json | jq -r '
+            [.[] | select(.tags != null and .tags[0].name != null)] 
+            | sort_by(.push_time) 
+            | last 
+            | .tags[0].name // "none"
+          ')
+          
+          if [ "${LATEST_TAG}" = "null" ] || [ "${LATEST_TAG}" = "none" ]; then
+            echo "❌ Nessun tag trovato per ${APP_DIR}"
+            continue
+          fi
+          
+          echo "🏷️ Ultimo tag per ${APP_DIR}: ${LATEST_TAG}"
+          
+          # Estrai tag corrente dal deployment
+          CURRENT_TAG=$(grep "image: ${IMAGE_NAME}:" deployment.yaml | sed 's/.*://')
+          
+          echo "📝 Tag corrente: ${CURRENT_TAG}"
+          
+          # Aggiorna se necessario
+          if [ "${LATEST_TAG}" != "${CURRENT_TAG}" ] && [ ! -z "${CURRENT_TAG}" ]; then
+            echo "🔄 Aggiorno ${APP_DIR}: ${CURRENT_TAG} -> ${LATEST_TAG}"
+            
+            # Backup e aggiorna
+            cp deployment.yaml /tmp/deployment.yaml.bak
+            sed -i "s|image: ${IMAGE_NAME}:${CURRENT_TAG}|image: ${IMAGE_NAME}:${LATEST_TAG}|" deployment.yaml
+            
+            # Commit e push
+            cd /tmp/repo
+            git add "apps/${APP_DIR}/deployment.yaml"
+            git commit -m "Update ${APP_DIR} image to ${LATEST_TAG}" || echo "Nessun cambiamento da committare"
+            git push origin main
+            
+            echo "✅ ${APP_DIR} aggiornato!"
+          else
+            echo "⏭️ ${APP_DIR} già aggiornato"
+          fi
+        done
+        
+        echo ""
+        echo "========================================="
+        echo "💤 Ciclo completato. Attesa 60 secondi..."
+        echo "========================================="
+        sleep 60
+      done
+    env:
+    - name: HARBOR_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: harbor-creds
+          key: username
+    - name: HARBOR_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: harbor-creds
+          key: password
+    - name: GITHUB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: github-creds
+          key: username
+    - name: GITHUB_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: github-creds
+          key: token
