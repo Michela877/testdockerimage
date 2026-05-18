@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: flask
-        image: test.local/michela877/flask-hello:0.2v  # ← Nome GENERICO che verrà sostituito da Kustomize
+        image: test.local/michela877/flask-hello  # SENZA TAG
         ports:
         - containerPort: 8081
         env:
